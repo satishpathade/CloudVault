@@ -21,18 +21,6 @@ CloudVault follows a stateless, event-driven AWS architecture:
 
 ## End-to-End Flow
 
-1. User accesses the application via browser
-2. Request reaches Nginx on EC2
-3. Nginx forwards traffic to Flask backend
-4. User selects file and folder name
-5. Backend generates S3 pre-signed upload URL
-6. Browser uploads file directly to S3
-7. Backend stores file metadata in RDS
-8. S3 triggers Lambda on successful upload
-9. Lambda sends notification via SNS
-10. Files are displayed in folders or gallery view
-11. Lifecycle rules optimize storage cost over time
-
 ![Architecture-flow](<architecture/CloudVault – Full Architecture Flow.png>)
 
 ---
@@ -126,22 +114,35 @@ S3 versioning is enabled to protect against accidental deletion or overwrite.
 
 ## Monitoring & Alerts
 
-### CloudWatch Metrics
-- EC2 CPU utilization  
-
-### CloudWatch Logs
-- Flask application logs  
-- Lambda execution logs  
-
-### CloudWatch Alarms
-- High CPU usage  
-- Instance status check failures 
-
 Notifications are delivered using **Amazon SNS**.
+
+### CloudWatch Metrics
+
+| Metric | Purpose |
+|------|---------|
+| **EC2 CPU Utilization** | Monitors server load and detects performance spikes |
 
 ---
 
-## ⚙️ Setup & Deployment (High Level)
+### CloudWatch Logs
+
+| Log Source | Purpose |
+|----------|---------|
+| **Flask Application Logs** | Tracks backend requests, errors, and application behavior |
+| **Lambda Execution Logs** | Captures event processing and notification workflow details |
+
+---
+
+### CloudWatch Alarms
+
+| Alarm | Trigger Condition |
+|------|-------------------|
+| **High CPU Usage** | Alerts when CPU utilization exceeds safe threshold |
+| **Instance Status Check Failures** | Detects EC2 system or instance-level failures |
+
+---
+
+## Setup & Deployment (High Level)
 
 - Launch Amazon EC2 (Amazon Linux)  
 - Install Python, Nginx, and required dependencies  
@@ -177,7 +178,7 @@ Notifications are delivered using **Amazon SNS**.
 
 ---
 
-## 👤 Author
+## Author
 
 **Satish Pathade**   
-Focused on building production-grade AWS systems
+Focused on building reliable, scalable, production-ready systems on AWS.
