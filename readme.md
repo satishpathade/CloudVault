@@ -144,26 +144,60 @@ Notifications are delivered using **Amazon SNS**.
 
 ## Setup & Deployment (High Level)
 
-- Launch Amazon EC2 (Amazon Linux)  
-- Install Python, Nginx, and required dependencies  
-- Clone project to `/usr/share/nginx/html/cloudvault`  
-- Create and activate Python virtual environment  
+- Launch Amazon EC2 (Amazon Linux)
+    ### Security Group Rules
+    | Type | Protocol | Port | Source |
+    |----|----|----|----|
+    | SSH | TCP | 22 | Your IP |
+    | HTTP | TCP | 80 | 0.0.0.0/0 |
+
+- Connect to EC2 & Install System Dependencies
+    ```
+    sudo yum update -y
+    sudo yum install -y python3 python3-pip nginx git
+    ```
+- Clone Project into Nginx Web Root 
+    ```
+    cd /usr/share/nginx/html
+    sudo git clone https://github.com/satishpathade/CloudVault.git
+    sudo chown -R ec2-user:ec2-user CloudVault
+    cd CloudVault
+    ```
+
+- Create and activate Python virtual environment 
+    ```
+    python3 -m venv venv
+    source venv/bin/activate
+    ```
+
 - Install Python dependencies  
+    ```
+    pip install --upgrade pip
+    pip install -r requirements.txt
+    ```
+    
 - Configure IAM roles and permissions  
 - Configure Nginx reverse proxy  
+    ```
+    sudo nano /etc/nginx/nginx.config 
+    server {
+        listen 80;
+        server_name _;
+
+        location / {
+            proxy_pass http://127.0.0.1:5000;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+    }
+    ```
 - Start Flask application  
-- Configure S3, RDS, Lambda, SNS, and CloudWatch 
-
----
-
-## Real-World Problems Solved
-
-- AWS Signature Version 4 upload issues  
-- Flask static asset resolution  
-- Nginx reverse proxy errors  
-- Virtual environment dependency isolation  
-- IAM permission misconfigurations  
-- Secure direct-to-S3 upload patterns  
+    ```
+    source venv/bin/activate
+    nohup python run.py > app.log 2>&1 &
+    ```
+- Configure S3, RDS, Lambda, SNS, and CloudWatch  
 
 ---
 
