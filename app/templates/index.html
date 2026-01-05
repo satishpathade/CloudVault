@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>CloudVault | Secure Upload</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+    <div class="card">
+        <div class="title">CloudVault</div>
+        <div class="subtitle">Secure file upload to cloud storage</div>
+
+        <label class="drop-zone" id="dropZone">
+            <input type="file" id="fileInput">
+            <p>Click to select or drag & drop a file</p>
+            <div class="filename" id="fileName"></div>
+        </label>
+
+        <div class="progress" id="progress">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <button class="btn" onclick="uploadFile()">Upload File</button>
+
+        <div class="status" id="status"></div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+
+</html>
