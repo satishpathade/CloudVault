@@ -179,7 +179,7 @@ Notifications are delivered using **Amazon SNS**.
 - Configure IAM roles and permissions  
 - Configure Nginx reverse proxy  
     ```
-    sudo nano /etc/nginx/nginx.config 
+    sudo nano /etc/nginx/nginx.confi
     server {
         listen 80;
         server_name _;
