@@ -122,16 +122,12 @@ Notifications are delivered using **Amazon SNS**.
 |------|---------|
 | **EC2 CPU Utilization** | Monitors server load and detects performance spikes |
 
----
-
 ### CloudWatch Logs
 
 | Log Source | Purpose |
 |----------|---------|
 | **Flask Application Logs** | Tracks backend requests, errors, and application behavior |
 | **Lambda Execution Logs** | Captures event processing and notification workflow details |
-
----
 
 ### CloudWatch Alarms
 
@@ -197,7 +193,99 @@ Notifications are delivered using **Amazon SNS**.
     source venv/bin/activate
     nohup python run.py > app.log 2>&1 &
     ```
-- Configure S3, RDS, Lambda, SNS, and CloudWatch  
+- Configure S3
+
+    ### Bucket Details
+    - **Bucket Name**: `cloudvault-files-uploads`
+    - **Region**: `ap-south-1`
+    - **Purpose**: Store uploaded files securely
+
+    ### Configuration Steps
+    - Block **all public access**
+    - Enable **Bucket Versioning**
+
+    ### Lifecycle Rules (Cost Optimization)
+
+    | Age of Object | Storage Class |
+    |--------------|---------------|
+    | Day 0–29 | S3 Standard |
+    | Day 30–59 | S3 Standard-IA |
+    | Day 60+ | Glacier Flexible Retrieval |
+
+    This ensures long-term storage cost optimization.
+
+- RDS
+
+    ## 🗄️ Amazon RDS (MySQL) Configuration
+
+    ### Database Details
+    - **DB Identifier**: `cloudvault-db`
+    - **Engine**: MySQL
+    - **DB Name**: `cloudvault`
+    - **Username**: `root`
+    - **Access**: Private (not publicly accessible)
+
+    ### Security
+    - RDS Security Group allows inbound MySQL (3306) **only from EC2 security group**
+
+    ### Table Schema
+
+    ```sql
+    CREATE TABLE file_metadata (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        original_filename VARCHAR(255),
+        s3_object_key VARCHAR(255),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    ```
+
+- AWS Lambda
+    AWS Lambda is used to implement an event-driven workflow for file upload notifications
+
+    ### Lambda Function Details
+
+    | Property | Value |
+    |--------|-------|
+    | **Function Name** | `cloudvault-s3-upload-notifier` |
+    | **Runtime** | Python 3.10 |
+    | **Trigger Source** | Amazon S3 |
+    | **Trigger Event** | `ObjectCreated` |
+    | **Purpose** | Process S3 upload events and initiate notifications |
+
+- SNS Topic Details
+
+    | Property | Value |
+    |--------|-------|
+    | **Topic Name** | `cloudvault-cpu-alerts` |
+    | **Topic Name** | `cloudvault-upload-events`|
+    | **Protocol** | Email |
+    | **Purpose** | Notify users or administrators of successful file uploads |
+
+- Amazon CloudWatch  
+
+    Amazon CloudWatch provides monitoring, logging, and alerting for the CloudVault system.
+
+    ### CloudWatch Metrics
+
+    | Metric | Description |
+    |------|-------------|
+    | **EC2 CPU Utilization** | Monitors backend server load |
+    | **Instance Health Status** | Tracks EC2 system and instance checks |
+
+    ### CloudWatch Logs
+
+    | Log Source | Purpose |
+    |----------|---------|
+    | **Flask Application Logs** | Monitor backend requests and errors |
+    | **Lambda Execution Logs** | Debug event processing and notifications |
+
+    ### CloudWatch Alarms
+
+    | Alarm Name | Trigger Condition |
+    |-----------|------------------|
+    | `cloudvault-cpu-high` | CPU Utilization > 60% |
+
+Alarm notifications are sent using **Amazon SNS** to ensure rapid response to system issues.
 
 ---
 
